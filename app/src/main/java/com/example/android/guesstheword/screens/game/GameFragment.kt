@@ -17,13 +17,13 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.example.android.guesstheword.R
@@ -40,7 +40,7 @@ class GameFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         // Inflate view and obtain an instance of the binding class
         binding = DataBindingUtil.inflate(
@@ -51,7 +51,7 @@ class GameFragment : Fragment() {
         )
 
         Log.i("GameFragment", "Called ViewModelProvider!")
-        viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+        viewModel = ViewModelProvider(this)[GameViewModel::class.java]
 
         binding.correctButton.setOnClickListener {
             viewModel.onCorrect()
@@ -62,19 +62,24 @@ class GameFragment : Fragment() {
         }
 
         /** Setting up LiveData observation relationship **/
-        viewModel.word.observe(viewLifecycleOwner, Observer { newWord ->
+        viewModel.word.observe(viewLifecycleOwner, { newWord ->
             binding.wordText.text = newWord
         })
-        viewModel.score.observe(viewLifecycleOwner, Observer { newScore ->
+        viewModel.score.observe(viewLifecycleOwner, { newScore ->
             binding.scoreText.text = newScore.toString()
         })
 
         // Sets up event listening to navigate the player when the game is finished
-        viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer { hasFinished ->
+        viewModel.eventGameFinish.observe(viewLifecycleOwner, { hasFinished ->
             if (hasFinished) {
                 gameFinished()
                 viewModel.onGameFinishComplete()
             }
+        })
+
+        viewModel.currentTime.observe(viewLifecycleOwner, { newTime ->
+            binding.timerText.text = DateUtils.formatElapsedTime(newTime)
+
         })
 
         return binding.root
