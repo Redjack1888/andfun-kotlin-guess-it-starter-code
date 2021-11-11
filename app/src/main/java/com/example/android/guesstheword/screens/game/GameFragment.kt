@@ -53,13 +53,10 @@ class GameFragment : Fragment() {
         Log.i("GameFragment", "Called ViewModelProvider!")
         viewModel = ViewModelProvider(this)[GameViewModel::class.java]
 
-        binding.correctButton.setOnClickListener {
-            viewModel.onCorrect()
-        }
+        // Set the viewmodel for databinding - this allows the bound layout access to all of the
+        // data in the VieWModel
+        binding.gameViewModel = viewModel
 
-        binding.skipButton.setOnClickListener {
-            viewModel.onSkip()
-        }
 
         /** Setting up LiveData observation relationship **/
         viewModel.word.observe(viewLifecycleOwner, { newWord ->
